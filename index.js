@@ -18,7 +18,7 @@ try {
    "messagecount":"on",
    "message":"My Stand, **Za Hando**, erases all chats in the Discord channel specified in its configuration file! It can be really dangerous, so watch out."
   };
- fs.appendFileSync(globalconfig, JSON.stringify(baseconfig, null, ' '));
+ fs.appendFileSync(__dirname + '/config.json', JSON.stringify(baseconfig, null, ' '));
   process.abort();
   }   
 

@@ -65,7 +65,7 @@ disClient.on('ready', () => {
 
  function exitProgram(channel, msgCount) {
   msgCount--;
-  console.log("Deleted ${msgCount} messages in total.");
+  console.log(`Deleted ${msgCount} messages in total.`);
   channel.send(getAdvertisement(msgCount))
    .then(function() {
     console.log("Purge complete. Exiting program.");

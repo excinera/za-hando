@@ -19,7 +19,7 @@ try {
    "message":"My Stand, **Za Hando**, erases all chats in the Discord channel specified in its configuration file! It can be really dangerous, so watch out."
   };
  fs.appendFileSync(__dirname + '/config.json', JSON.stringify(baseconfig, null, ' '));
-  process.abort();
+  process.exit(1);
  }
 
 function killPage(channel, pageSize) {
@@ -63,7 +63,7 @@ disClient.on('ready', () => {
   return disChannel.send(getAdvertisement(msgCount))
    .finally(function() {
     console.log("Purge complete. Exiting program.");
-    process.abort();
+    process.exit(0);
    });
  }).catch(console.error);
 }); // closes routine to execute when the client's ready.

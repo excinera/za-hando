@@ -9,6 +9,16 @@ try {
   }
  catch (e) {
   console.log("No configuration file found. Exiting program.");
+  baseconfig = {
+   "client_id":"000000000000000000",
+   "server_id":"000000000000000000",
+   "token":"00000000000000000000000000000000000000000000000000000000000",
+   "purge":"off",
+   "purge_channel":"000000000000000000",
+   "messagecount":"on",
+   "message":"My Stand, **Za Hando**, erases all chats in the Discord channel specified in its configuration file! It can be really dangerous, so watch out."
+  };
+ fs.appendFileSync(globalconfig, JSON.stringify(baseconfig, null, ' '));
   process.abort();
   }   
 
@@ -18,7 +28,6 @@ console.log("Starting purge on " + purgeConfig['server_id']);
 disClient.on('ready', () => {
  var msgCount = 0;
  disServer = disClient.guilds.get(purgeConfig['server_id']);
- console.log("im gay");
  console.log(disServer.channels);
  disChannel = disServer.channels.get(purgeConfig['purge_channel']);
  var i = 1;
@@ -28,7 +37,7 @@ disClient.on('ready', () => {
   console.log(channel.lastMessageID);
   channel.bulkDelete(100)
    .then(messages => {
-    console.log(`Bulk deleted ${messages.size} messages`)
+    console.log(`Deleting ${messages.size} messages`)
     msgCount+= messages.size;
     if (messages.size == 0) { exitProgram(channel); }
     killEmAll(channel);
@@ -40,17 +49,18 @@ disClient.on('ready', () => {
  function exitProgram(channel) {
   var prefix = "";
   msgCount--;
+  console.log("Deleted ${msgCount} messages in total.");
   if (purgeConfig['messagecount'] === "on") {
    prefix = "[" + msgCount + " messages deleted] ";
    if (msgCount === 1) prefix = "[" + msgCount + " message deleted] ";
    }
   channel.send(prefix + purgeConfig['message'])
    .then(function() {
-    console.log("Purge complete");
+    console.log("Purge complete. Exiting program.");
     process.abort();
     })
    .catch(function() {
-    console.log("Purge complete");
+    console.log("Purge complete. Exiting program.");
     process.abort();
     });
   } // closes exitProgram

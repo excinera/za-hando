@@ -54,11 +54,9 @@ const disClient = new disco.Client();
 disClient.login(purgeConfig['token']).catch(err => {console.log('Authentication failure!'); throw err});
 console.log("Starting purge on " + purgeConfig['server_id']);
 disClient.on('ready', () => {
- var msgCount = 0;
  disServer = disClient.guilds.get(purgeConfig['server_id']);
  console.log(disServer.channels);
  disChannel = disServer.channels.get(purgeConfig['purge_channel']);
- var i = 1;
  killEmAll(disChannel).then(msgCount => {
   msgCount--;
   console.log(`Deleted ${msgCount} messages in total.`);

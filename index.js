@@ -20,7 +20,25 @@ try {
   };
  fs.appendFileSync(__dirname + '/config.json', JSON.stringify(baseconfig, null, ' '));
   process.abort();
-  }   
+ }
+
+function killPage(channel, pageSize) {
+ console.log(channel.lastMessageID);
+ return channel.bulkDelete(pageSize).then(messages => {
+  console.log(`Deleted ${messages.size} messages`);
+  return messages.size;
+ }); // what to do with the messages
+} // closes killPage
+
+function killEmAll(channel) {
+ return killPage(channel, 100).then(msgs => {
+  if (msgs === 0) {
+   return 0;
+  } else {
+   return killEmAll(channel).then(others => msgs + others);
+  }
+ }); // what to do after deleting one page
+} // closes killEmAll
 
 const disClient = new disco.Client();
 disClient.login(purgeConfig['token']).catch(err => {console.log('Authentication failure!'); throw err});
@@ -31,22 +49,11 @@ disClient.on('ready', () => {
  console.log(disServer.channels);
  disChannel = disServer.channels.get(purgeConfig['purge_channel']);
  var i = 1;
- killEmAll(disChannel);
+ killEmAll(disChannel).then(msgCount => {
+  exitProgram(disChannel, msgCount);
+ }).catch(console.error);
 
- function killEmAll(channel) {
-  console.log(channel.lastMessageID);
-  channel.bulkDelete(100)
-   .then(messages => {
-    console.log(`Deleting ${messages.size} messages`)
-    msgCount+= messages.size;
-    if (messages.size == 0) { exitProgram(channel); }
-    killEmAll(channel);
-    }) // What to do with the messages!
-   .catch(console.error);
-  // }
-  } // closes killEmAll
-
- function exitProgram(channel) {
+ function exitProgram(channel, msgCount) {
   var prefix = "";
   msgCount--;
   console.log("Deleted ${msgCount} messages in total.");

@@ -58,7 +58,7 @@ disClient.on('ready', () => {
  console.log(disServer.channels);
  disChannel = disServer.channels.get(purgeConfig['purge_channel']);
  killEmAll(disChannel).then(msgCount => {
-  msgCount--;
+  msgCount--; // don't count deleting the prior advertisement
   console.log(`Deleted ${msgCount} messages in total.`);
   return disChannel.send(getAdvertisement(msgCount))
    .finally(function() {

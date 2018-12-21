@@ -60,17 +60,12 @@ disClient.on('ready', () => {
  disChannel = disServer.channels.get(purgeConfig['purge_channel']);
  var i = 1;
  killEmAll(disChannel).then(msgCount => {
-  exitProgram(disChannel, msgCount);
- }).catch(console.error);
-
- function exitProgram(channel, msgCount) {
   msgCount--;
   console.log(`Deleted ${msgCount} messages in total.`);
-  channel.send(getAdvertisement(msgCount))
+  return disChannel.send(getAdvertisement(msgCount))
    .finally(function() {
     console.log("Purge complete. Exiting program.");
     process.abort();
    });
-  } // closes exitProgram
-
- }); // closes routine to execute when the client's ready.
+ }).catch(console.error);
+}); // closes routine to execute when the client's ready.

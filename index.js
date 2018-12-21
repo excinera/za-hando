@@ -41,6 +41,15 @@ function killEmAll(channel) {
  }); // what to do after deleting one page
 } // closes killEmAll
 
+function getAdvertisement(msgCount) {
+ var prefix = "";
+ if (purgeConfig['messagecount'] === "on") {
+  prefix = "[" + msgCount + " messages deleted] ";
+  if (msgCount === 1) prefix = "[" + msgCount + " message deleted] ";
+ }
+ return prefix + purgeConfig['message'];
+}
+
 const disClient = new disco.Client();
 disClient.login(purgeConfig['token']).catch(err => {console.log('Authentication failure!'); throw err});
 console.log("Starting purge on " + purgeConfig['server_id']);
@@ -55,14 +64,9 @@ disClient.on('ready', () => {
  }).catch(console.error);
 
  function exitProgram(channel, msgCount) {
-  var prefix = "";
   msgCount--;
   console.log("Deleted ${msgCount} messages in total.");
-  if (purgeConfig['messagecount'] === "on") {
-   prefix = "[" + msgCount + " messages deleted] ";
-   if (msgCount === 1) prefix = "[" + msgCount + " message deleted] ";
-   }
-  channel.send(prefix + purgeConfig['message'])
+  channel.send(getAdvertisement(msgCount))
    .then(function() {
     console.log("Purge complete. Exiting program.");
     process.abort();

@@ -19,50 +19,51 @@ try {
    "message":"My Stand, **Za Hando**, erases all chats in the Discord channel specified in its configuration file! It can be really dangerous, so watch out."
   };
  fs.appendFileSync(__dirname + '/config.json', JSON.stringify(baseconfig, null, ' '));
-  process.abort();
-  }   
+  process.exit(1);
+ }
+
+function killPage(channel, pageSize) {
+ console.log(channel.lastMessageID);
+ return channel.bulkDelete(pageSize).then(messages => {
+  console.log(`Deleted ${messages.size} messages`);
+  return messages.size;
+ }); // what to do with the messages
+} // closes killPage
+
+function killEmAll(channel) {
+ const pageSize = 100;
+ return killPage(channel, pageSize).then(msgs => {
+  if (msgs < pageSize) {
+   return msgs;
+  } else {
+   return killEmAll(channel).then(others => msgs + others);
+  }
+ }); // what to do after deleting one page
+} // closes killEmAll
+
+function getAdvertisement(msgCount) {
+ var prefix = "";
+ if (purgeConfig['messagecount'] === "on") {
+  prefix = "[" + msgCount + " messages deleted] ";
+  if (msgCount === 1) prefix = "[" + msgCount + " message deleted] ";
+ }
+ return prefix + purgeConfig['message'];
+}
 
 const disClient = new disco.Client();
 disClient.login(purgeConfig['token']).catch(err => {console.log('Authentication failure!'); throw err});
 console.log("Starting purge on " + purgeConfig['server_id']);
 disClient.on('ready', () => {
- var msgCount = 0;
  disServer = disClient.guilds.get(purgeConfig['server_id']);
  console.log(disServer.channels);
  disChannel = disServer.channels.get(purgeConfig['purge_channel']);
- var i = 1;
- killEmAll(disChannel);
-
- function killEmAll(channel) {
-  console.log(channel.lastMessageID);
-  channel.bulkDelete(100)
-   .then(messages => {
-    console.log(`Deleting ${messages.size} messages`)
-    msgCount+= messages.size;
-    if (messages.size == 0) { exitProgram(channel); }
-    killEmAll(channel);
-    }) // What to do with the messages!
-   .catch(console.error);
-  // }
-  } // closes killEmAll
-
- function exitProgram(channel) {
-  var prefix = "";
-  msgCount--;
-  console.log("Deleted ${msgCount} messages in total.");
-  if (purgeConfig['messagecount'] === "on") {
-   prefix = "[" + msgCount + " messages deleted] ";
-   if (msgCount === 1) prefix = "[" + msgCount + " message deleted] ";
-   }
-  channel.send(prefix + purgeConfig['message'])
-   .then(function() {
+ killEmAll(disChannel).then(msgCount => {
+  msgCount--; // don't count deleting the prior advertisement
+  console.log(`Deleted ${msgCount} messages in total.`);
+  return disChannel.send(getAdvertisement(msgCount))
+   .finally(function() {
     console.log("Purge complete. Exiting program.");
-    process.abort();
-    })
-   .catch(function() {
-    console.log("Purge complete. Exiting program.");
-    process.abort();
-    });
-  } // closes exitProgram
-
- }); // closes routine to execute when the client's ready.
+    process.exit(0);
+   });
+ }).catch(console.error);
+}); // closes routine to execute when the client's ready.

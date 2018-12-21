@@ -31,9 +31,10 @@ function killPage(channel, pageSize) {
 } // closes killPage
 
 function killEmAll(channel) {
- return killPage(channel, 100).then(msgs => {
-  if (msgs === 0) {
-   return 0;
+ const pageSize = 100;
+ return killPage(channel, pageSize).then(msgs => {
+  if (msgs < pageSize) {
+   return msgs;
   } else {
    return killEmAll(channel).then(others => msgs + others);
   }

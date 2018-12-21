@@ -67,14 +67,10 @@ disClient.on('ready', () => {
   msgCount--;
   console.log(`Deleted ${msgCount} messages in total.`);
   channel.send(getAdvertisement(msgCount))
-   .then(function() {
+   .finally(function() {
     console.log("Purge complete. Exiting program.");
     process.abort();
-    })
-   .catch(function() {
-    console.log("Purge complete. Exiting program.");
-    process.abort();
-    });
+   });
   } // closes exitProgram
 
  }); // closes routine to execute when the client's ready.

@@ -54,6 +54,7 @@ disClient.on('ready', () => {
    prefix = "[" + msgCount + " messages deleted] ";
    if (msgCount === 1) prefix = "[" + msgCount + " message deleted] ";
    }
+  if (purgeConfig['sendmessage'] === "on") {
   channel.send(prefix + purgeConfig['message'])
    .then(function() {
     console.log("Purge complete. Exiting program.");
@@ -63,6 +64,11 @@ disClient.on('ready', () => {
     console.log("Purge complete. Exiting program.");
     process.abort();
     });
+  }
+  else {
+   console.log("Purge complete. Exiting program.");
+   process.abort();
+   }
   } // closes exitProgram
 
  }); // closes routine to execute when the client's ready.
